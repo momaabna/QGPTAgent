@@ -130,7 +130,7 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.agentName ='QGPT Agent'
-        self.chat_text ='QGPT Agent  in Your Service  '
+        self.chat_text ='QGPT Agent  at Your Service  '
         self.mode =self.agentRadio.isChecked()
         try:
             self.apiTocken = os.environ['QGPT_AGENT_OPEN_AI_TOCKEN']
