@@ -71,4 +71,4 @@ QGPT Agent is a powerful plugin that can help users automate various processes i
 
 ## To be Done 
 [-] Adding long-term memory
-[-] 
+[-] More prompt optimization
