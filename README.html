@@ -1,42 +1,51 @@
+<!DOCTYPE html>
 <html>
+<head>
+	<title>QGPT Agent Documentation</title>
+</head>
 <body>
-<h3>Plugin Builder Results</h3>
+	<h1>QGPT Agent Documentation</h1>
 
-Congratulations! You just built a plugin for QGIS!<br/><br />
+	<h2>Introduction</h2>
+	<p>QGPT Agent is a plugin for QGIS that allows users to interact with QGIS using natural language commands. It utilizes the advanced natural language processing capabilities of the OpenAI GPT model to automate various processes in QGIS. This significantly reduces the time and effort required to complete various tasks in QGIS.</p>
 
-<div id='help' style='font-size:.9em;'>
-Your plugin <b>QGPTAgent</b> was created in:<br>
-&nbsp;&nbsp;<b>/home/mohammed/QGIS_Plugins/qgpt_agent</b>
-<p>
-Your QGIS plugin directory is located at:<br>
-&nbsp;&nbsp;<b>/home/mohammed/.local/share/QGIS/QGIS3/profiles/default/python/plugins</b>
-<p>
-<h3>What's Next</h3>
-<ol>
-    <li>In your plugin directory, compile the resources file using pyrcc5 (simply run <b>make</b> if you have automake or use <b>pb_tool</b>)
-    <li>Test the generated sources using <b>make test</b> (or run tests from your IDE)
-    <li>Copy the entire directory containing your new plugin to the QGIS plugin directory (see Notes below)
-    <li>Test the plugin by enabling it in the QGIS plugin manager
-    <li>Customize it by editing the implementation file <b>qgpt_agent.py</b>
-    <li>Create your own custom icon, replacing the default <b>icon.png</b>
-    <li>Modify your user interface by opening <b>qgpt_agent_dockwidget_base.ui</b> in Qt Designer
-</ol>
-Notes:
-<ul>
-    <li>You can use the <b>Makefile</b> to compile and deploy when you
-        make changes. This requires GNU make (gmake). The Makefile is ready to use, however you 
-        will have to edit it to add addional Python source files, dialogs, and translations.
-    <li>You can also use <b>pb_tool</b> to compile and deploy your plugin. Tweak the <i>pb_tool.cfg</i> file included with your plugin as you add files. Install <b>pb_tool</b> using 
-        <i>pip</i> or <i>easy_install</i>. See <b>http://loc8.cc/pb_tool</b> for more information.
-</ul>
-</div>
-<div style='font-size:.9em;'>
-<p>
-For information on writing PyQGIS code, see <b>http://loc8.cc/pyqgis_resources</b> for a list of resources.
-</p>
-</div>
-<p>
-&copy;2011-2018 GeoApt LLC - geoapt.com 
-</p>
+	<h2>Installation</h2>
+	<ol>
+		<li>Open QGIS and go to the "Plugins" menu.</li>
+		<li>Select "Manage and Install Plugins".</li>
+		<li>In the "All" tab, search for "QGPT Agent".</li>
+		<li>Click on "Install Plugin" to install QGPT Agent.</li>
+	</ol>
+
+	<h2>Usage</h2>
+	<ol>
+		<li>Open QGIS and load the data you want to work with.</li>
+		<li>In the QGIS menu, go to "Plugins" and select "QGPT Agent".</li>
+		<li>The QGPT Agent dialog box will appear. Type your natural language command in the text box provided.</li>
+		<li>Press "Enter" or click on "Execute" to execute the command.</li>
+	</ol>
+
+	<h2>Commands</h2>
+	<p>QGPT Agent supports a wide range of natural language commands but commands, try to write command properly.</p>
+
+	<h2>Chat</h2>
+	<p>It can be worked as chat to answer your questions</p>
+
+	<h2>Limitations</h2>
+	<ul>
+		<li>QGPT Agent requires an internet connection to use the OpenAI GPT model for natural language processing.</li>
+		<li>QGPT Agent may not recognize some natural language commands correctly.</li>
+		<li>QGPT Agent may not be able to perform some complex tasks that require multiple steps or complex workflows.</li>
+		<li>QGPT Agent may not be suitable for users who prefer a more hands-on approach to working with QGIS.</li>
+	</ul>
+
+	<h2>Conclusion</h2>
+	<p>QGPT Agent is a powerful plugin that can help users automate various processes in QGIS using natural language commands. It utilizes the advanced natural language processing capabilities of the OpenAI GPT model to interpret natural language commands and execute them in QGIS. Although QGPT Agent has some limitations, it can be a valuable tool for users who want to streamline their workflow and save time and effort when working with QGIS.</p>
+
+	<h2>To be Done</h2>
+	<ul>
+		<li>Adding long-term memory</li>
+		<li></li>
+	</ul>
 </body>
 </html>
