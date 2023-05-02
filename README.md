@@ -29,7 +29,7 @@ To install from ZIP file
 To get an OpenAI API access token, follow these steps:
 
 1. Create an OpenAI account at https://beta.openai.com/signup/
-2. Once you've created an account, navigate to the API page athttps://platform.openai.com/account/api-keys .
+2. Once you've created an account, navigate to the API page at https://platform.openai.com/account/api-keys .
 3. Click on the "Create new API key" button to generate a new scret key.
 4. Copy the API key and insert it in setting tab.
 
