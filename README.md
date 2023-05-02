@@ -13,6 +13,29 @@ To install QGPT Agent, follow the steps below:
 3. In the "All" tab, search for "QGPT Agent".
 4. Click on "Install Plugin" to install QGPT Agent.
 
+To install from ZIP file 
+
+1. Download the plugin zip file from the plugin repository or from Releases.
+2. Open QGIS and go to the "Plugins" menu.
+3. Select "Manage and Install Plugins".
+4. In the "Installed" tab, click on the "Install from ZIP" button.
+5. In the "Install Plugin" dialog box, click on the "Choose Plugin ZIP" button and select the downloaded zip file.
+6. Click on "Install Plugin" to install the plugin.
+7. Once the installation is complete, you should see a message confirming the successful installation of the plugin.
+8. Close and reopen QGIS for the newly installed plugin to take effect.
+
+## Open AI access tocken 
+
+To get an OpenAI API access token, follow these steps:
+
+1. Create an OpenAI account at https://beta.openai.com/signup/
+2. Once you've created an account, navigate to the API page athttps://platform.openai.com/account/api-keys .
+3. Click on the "Create new API key" button to generate a new scret key.
+4. Copy the API key and insert it in setting tab.
+
+Note: Be sure to keep your API key secure, as it can be used to access your OpenAI resources and make API calls on your behalf.
+
+
 ## Usage
 
 Once QGPT Agent is installed, you can use natural language commands to interact with QGIS. To use QGPT Agent, follow the steps below:
