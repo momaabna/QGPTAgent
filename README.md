@@ -70,5 +70,9 @@ QGPT Agent is a powerful plugin that can automate various processes in QGIS. How
 QGPT Agent is a powerful plugin that can help users automate various processes in QGIS using natural language commands. It utilizes the advanced natural language processing capabilities of the OpenAI GPT model to interpret natural language commands and execute them in QGIS. Although QGPT Agent has some limitations, it can be a valuable tool for users who want to streamline their workflow and save time and effort when working with QGIS.
 
 ## To be Done 
-[-] Adding long-term memory
-[-] More prompt optimization
+[-] Adding long-term memory.
+
+[-] More prompt optimization.
+
+## Contact 
+Email:momaabna2019@gmail.com
