@@ -81,14 +81,18 @@ def get_completion(prompt,api_key,temprature=0.0):
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {api_key}',
     }
-
-    # Send the API request and get the response
-    response = requests.post('https://api.openai.com/v1/completions', json=data, headers=headers)
-    #print(response)
-
-    # Parse the response to get the text completion
-    completion = response.json()['choices'][0]['text']
-
+    try:
+        # Send the API request and get the response
+        response = requests.post('https://api.openai.com/v1/completions', json=data, headers=headers)
+        #print(response)
+        if response.status_code==200:
+            
+            # Parse the response to get the text completion
+            completion = response.json()['choices'][0]['text']
+        else:
+            completion =''
+    except:
+        completion=''
     return completion
 
 
@@ -233,8 +237,14 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.msgEdit.setText('')
         self.update_chat()
     def run_chat(self,completion):
+        if completion=='':
+            QtWidgets.QMessageBox.warning(self, 'Error', 'Cannot Connect to OpenAI')
+            return
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +completion
     def run_code(self,completion):
+        if completion=='':
+            QtWidgets.QMessageBox.warning(self, 'Error', 'Cannot Connect to OpenAI')
+            return
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Compiling Code.'
         code = completion.split('[[[')[1].split(']]]')[0]
         if self.seeCodeCheckBox.isChecked():
@@ -262,6 +272,9 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             
     
     def debug_code(self,completion):
+        if completion=='':
+            QtWidgets.QMessageBox.warning(self, 'Error', 'Cannot Connect to OpenAI')
+            return
         msg =completion.split('[[[')[1].split(']]]')[0]
         code = completion.split('[[[')[2].split(']]]')[0]
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Compiling New Code.'
