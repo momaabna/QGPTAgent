@@ -1,5 +1,5 @@
 <div style="text-align:center">
-    <img width="200px" hight="200px" src="icon.png" alt="QGPT Agent Icon">
+    <img width="200px" hight="200px" src="icon_full.png" alt="QGPT Agent Icon">
 </div>
 
 # QGPT Agent Documentation
