@@ -227,7 +227,7 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.chat_text =self.chat_text+'\n'+self.agentName +' : '+self.msgEdit.text()
             prompt = make_chat_prompt(self.msgEdit.text())
             #completion = get_completion(prompt, self.apiTocken)
-            worker = RequestWorker(prompt, self.apiTocken)
+            worker = RequestWorker(prompt, self.apiTocken,temprature=0.7)
             worker.finished_signal.connect(self.run_chat)
 
             # Add the worker to a QThreadPool and start it
@@ -277,6 +277,7 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return
         msg =completion.split('[[[')[1].split(']]]')[0]
         code = completion.split('[[[')[2].split(']]]')[0]
+        self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +msg
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Compiling New Code.'
         if self.seeCodeCheckBox.isChecked():
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Edited Code :\n'+code

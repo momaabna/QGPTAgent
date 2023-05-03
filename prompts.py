@@ -37,7 +37,7 @@ def make_debug_prompt(code, error):
     return f"""```python
 {code}
 ```
-The above code returns the error "{error}". Please briefly explain why the error is happening in one sentence bounded by [[[ SENTENCE]]], then write the corrected code python code bounded by brackets [[[ CODE ]]].""" 
+The above code returns the error "{error}". Please briefly explain why the error is happening in one sentence bounded by brackets [[[ SENTENCE]]], then write the corrected python code bounded by brackets [[[ CODE ]]].""" 
 
 def make_chat_prompt(user_input):
     # Get the name of the operating system
