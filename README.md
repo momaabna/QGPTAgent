@@ -80,5 +80,10 @@ QGPT Agent is a powerful plugin that can help users automate various processes i
 
 [-] Support Complex analysis processes.
 
+## Disclaimer
+
+The current version of the plugin takes Python code from LLM and runs it directly without any supervision from the user.
+
+
 ## Contact 
 Email: momaabna2019@gmail.com
