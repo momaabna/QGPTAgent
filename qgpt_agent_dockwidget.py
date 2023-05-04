@@ -9,7 +9,7 @@
         begin                : 2023-04-27
         git sha              : $Format:%H$
         copyright            : (C) 2023 by Mohammed Nasser
-        email                : mohammed.nasser@uofk.edu
+        email                : momaabna2019@uofk.edu
  ***************************************************************************/
 
 /***************************************************************************
@@ -133,6 +133,9 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # http://doc.qt.io/qt-5/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        self.python_code =''
+        self.is_waiting =False
+        self.is_debug =False
         self.agentName ='QGPT Agent'
         self.chat_text ='QGPT Agent  at Your Service  '
         self.mode =self.agentRadio.isChecked()
@@ -172,10 +175,75 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def update_chat(self):
         self.chatEdit.setText(self.chat_text)
         self.chatEdit.verticalScrollBar().setValue(self.chatEdit.verticalScrollBar().maximum())
+    def run_python_code(self):
+        
+        self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Running Code.'
+        st,msg=containerize_code(self.python_code)
+        #print('run python',st,msg)
+        if st:
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Done.'
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+msg
+        else:
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Found some prblems while execution.'
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+msg
+            # Correcting code to start and run it again
+            prompt = make_debug_prompt(self.python_code,msg)
+                #print(prompt)
+            #completion = get_completion(prompt, self.apiTocken)
+            self.worker = RequestWorker(prompt, self.apiTocken)
+            self.worker.finished_signal.connect(self.debug_code)
+
+            # Add the worker to a QThreadPool and start it
+            
+            self.worker.run()
+        self.python_code=''
+        self.msgEdit.setText('')
+        self.is_waiting =False
+        self.update_chat()
+    def debug_python_code(self):
+        self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Compiling New Code.'
+        if self.seeCodeCheckBox.isChecked():
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Edited Code :\n'+code
+            self.update_chat()
+        self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Running Code.'
+        st,msg=containerize_code(self.python_code)
+        if st:
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Done.'
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+msg
+        else:
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Found some prblems while execution.'
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+msg
+        self.update_chat()
+        self.python_code=''
+        self.msgEdit.setText('')
+        self.is_debug =False
+        self.update_chat()
+
     def send(self):
         #check if there is text 
         # 
+        #print('send')
         if self.msgEdit.text() =='':
+            return
+        
+        if (self.msgEdit.text() =='y' or self.msgEdit.text() =='Y') and self.is_waiting :
+            self.run_python_code()
+            #print('run code')
+            return
+        if (self.msgEdit.text() =='y' or self.msgEdit.text() =='Y') and self.is_debug :
+            self.debug_python_code()
+            return
+        if (self.msgEdit.text() =='n' or self.msgEdit.text() =='N'):
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Process Canceled.'
+            self.python_code=''
+            self.msgEdit.setText('')
+            self.is_debug =False
+            self.is_waiting=False
+            self.update_chat()
+            return
+        if self.is_debug or self.is_waiting:
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Please Enter Y/y or N/n.'
+            self.update_chat()
             return
         self.chat_text =self.chat_text+'\n'+self.userName +' : ' +self.msgEdit.text()
         if self.mode:
@@ -236,11 +304,13 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         self.msgEdit.setText('')
         self.update_chat()
+    #chat
     def run_chat(self,completion):
         if completion=='':
             QtWidgets.QMessageBox.warning(self, 'Error', 'Cannot Connect to OpenAI')
             return
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +completion
+    #code executions
     def run_code(self,completion):
         if completion=='':
             QtWidgets.QMessageBox.warning(self, 'Error', 'Cannot Connect to OpenAI')
@@ -250,7 +320,13 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if self.seeCodeCheckBox.isChecked():
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Code :\n'+code
             self.update_chat()
-
+        if not self.runCheckBox.isChecked():
+            self.python_code = code
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Code :\n'+code
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Send y/Y to run code n/N to cancel.'
+            self.update_chat()
+            self.is_waiting =True
+            return
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Running Code.'
         st,msg=containerize_code(code)
         if st:
@@ -277,6 +353,15 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return
         msg =completion.split('[[[')[1].split(']]]')[0]
         code = completion.split('[[[')[2].split(']]]')[0]
+        if not self.runCheckBox.isChecked():
+            self.is_debug =True
+            self.python_code = code
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +msg
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Edited Code  :\n'+code
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Send y/Y to run code n/N to cancel..'
+            self.update_chat()
+            self.is_debug = True
+            return
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +msg
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Compiling New Code.'
         if self.seeCodeCheckBox.isChecked():

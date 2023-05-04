@@ -145,7 +145,7 @@
          <rect>
           <x>20</x>
           <y>80</y>
-          <width>571</width>
+          <width>593</width>
           <height>26</height>
          </rect>
         </property>
@@ -181,6 +181,13 @@
           <widget class="QCheckBox" name="seeCodeCheckBox">
            <property name="text">
             <string>See Code</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="runCheckBox">
+           <property name="text">
+            <string>Run directly </string>
            </property>
           </widget>
          </item>
