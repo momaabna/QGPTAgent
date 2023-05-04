@@ -51,14 +51,15 @@ Once QGPT Agent is installed, you can use natural language commands to interact 
 
 ## Commands
 
-QGPT Agent supports a wide range of natural language commands but commands, try to write command properly.
+QGPT Agent supports a wide range of natural language commands but, try to write command properly.
 
-## Chat It can be worked as chat to answer your questions
+## Chat 
+
+It can be worked as chat to answer your questions about GIS.
 
 
 
 
-For a full list of commands supported by QGPT Agent, please refer to the QGPT Agent documentation.
 
 ## Limitations
 
@@ -77,6 +78,8 @@ QGPT Agent is a powerful plugin that can help users automate various processes i
 [-] Adding long-term memory.
 
 [-] More prompt optimization.
+
+[-] Supporting step by step supervised execution (suggestion by Julius Petri).
 
 [-] Support Complex analysis processes.
 
