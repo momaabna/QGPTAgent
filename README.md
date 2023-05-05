@@ -34,7 +34,7 @@ To get an OpenAI API access token, follow these steps:
 
 1. Create an OpenAI account at https://beta.openai.com/signup/
 2. Once you've created an account, navigate to the API page at https://platform.openai.com/account/api-keys .
-3. Click on the "Create new API key" button to generate a new scret key.
+3. Click on the "Create new API key" button to generate a new secret key.
 4. Copy the API key and insert it in setting tab.
 
 Note: Be sure to keep your API key secure, as it can be used to access your OpenAI resources and make API calls on your behalf.
@@ -47,7 +47,7 @@ Once QGPT Agent is installed, you can use natural language commands to interact 
 1. Open QGIS and load the data you want to work with.
 2. In the QGIS menu, go to "Plugins" and select "QGPT Agent".
 3. The QGPT Agent dialog box will appear. Type your natural language command in the text box provided.
-4. Press "Enter" or click on "Execute" to execute the command.
+4. Press "Enter" or click on "Send" to execute the command.
 
 getting started <a href='https://youtu.be/OkYSWwpduiw'>here </a>
 
