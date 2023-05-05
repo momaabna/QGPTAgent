@@ -86,10 +86,10 @@ QGPT Agent is a powerful plugin that can help users automate various processes i
 [-] Adding long-term memory.
 
 [-] More prompt optimization.
+
 ## Disclaimer
 
-The current version of the plugin takes Python code from LLM and runs it directly without any supervision from the user.
-
+It is important to exercise caution when using the "run directly" mode in QGPT Agent, as running code without any supervision may lead to unintended consequences or errors. While the natural language autonomous agent can automate tasks and save time, it is still important to review the generated code before executing it. This will ensure that the code aligns with your intended goals and does not cause any unintended side effects or errors. 
 
 ## Contact 
 Email: momaabna2019@gmail.com

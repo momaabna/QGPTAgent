@@ -8,7 +8,7 @@ qgisMinimumVersion=3.0
 description=QGPT Agent is LLM Assistant that uses openai GPT model to automate QGIS processes
 version=0.2
 author=Mohammed Nasser
-email=mohammed.nasser@uofk.edu
+email=momaabna2019@gmail.com
 
 about=The QGPT Agent is a powerful plugin for QGIS that utilizes the advanced natural language processing capabilities of the OpenAI GPT model to automate various processes in QGIS. With this plugin, users can interact with the QGIS software using natural language commands, significantly reducing the time and effort required to complete various tasks.
 
