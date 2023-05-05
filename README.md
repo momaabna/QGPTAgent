@@ -49,6 +49,8 @@ Once QGPT Agent is installed, you can use natural language commands to interact 
 3. The QGPT Agent dialog box will appear. Type your natural language command in the text box provided.
 4. Press "Enter" or click on "Execute" to execute the command.
 
+getting started <a href='https://youtu.be/OkYSWwpduiw'>here </a>
+
 ## Commands
 
 QGPT Agent supports a wide range of natural language commands but, try to write command properly.
