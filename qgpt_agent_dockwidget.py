@@ -48,7 +48,8 @@ def containerize_code(code_string):
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-""" +code_string
+""" +code_string +"""# refresh the canvas
+iface.mapCanvas().refresh()"""
     # From Engshell
     try:
         output_buffer = io.StringIO()
@@ -181,7 +182,14 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         except:
             print('Error happened while execution. ')
     def update_code(self):
-        self.python_code=self.codeEdit.toPlainText()
+        if self.is_debug or self.is_waiting:
+            self.python_code=self.codeEdit.toPlainText()
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Updated Code :\n'+self.python_code
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Send y/Y to run code n/N to cancel.'
+            self.update_chat()
+            QtWidgets.QMessageBox.information(self, 'Success', 'Code Updated Successfully')
+        else:
+            pass
 
         return
     def get_code(self):
