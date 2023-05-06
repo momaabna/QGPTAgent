@@ -134,6 +134,8 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.python_code =''
+        self.command =''
+        self.python_code_history =[]
         self.is_waiting =False
         self.is_debug =False
         self.agentName ='QGPT Agent'
@@ -161,8 +163,30 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.chatRadio.clicked.connect(self.check_mode)
         self.sendButton.clicked.connect(self.send)
         self.msgEdit.returnPressed.connect(self.send)
+        self.getCodeButton.clicked.connect(self.get_code)
+        self.updateButton.clicked.connect(self.update_code)
+        self.codeList.itemDoubleClicked.connect(self.select_code)
+        self.runButton.clicked.connect(self.run_code_button)
+    
         self.update_chat()
-        
+
+    def select_code(self,item):
+        index = self.codeList.indexFromItem(item).row()
+        self.codeEdit.setText(self.python_code_history[index]['code'])
+
+    def run_code_button(self):
+        try:
+            exec(self.codeEdit.toPlainText())
+            print('Running code ..')
+        except:
+            print('Error happened while execution. ')
+    def update_code(self):
+        self.python_code=self.codeEdit.toPlainText()
+
+        return
+    def get_code(self):
+        self.codeEdit.setText(self.python_code)
+        return
 
     def install_library(self):
         try:
@@ -175,6 +199,8 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def update_chat(self):
         self.chatEdit.setText(self.chat_text)
         self.chatEdit.verticalScrollBar().setValue(self.chatEdit.verticalScrollBar().maximum())
+        self.codeList.clear()
+        self.codeList.addItems([i['title'] for i in self.python_code_history])
     def run_python_code(self):
         
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Running Code.'
@@ -196,7 +222,7 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # Add the worker to a QThreadPool and start it
             
             self.worker.run()
-        self.python_code=''
+        #self.python_code=''
         self.msgEdit.setText('')
         self.is_waiting =False
         self.update_chat()
@@ -214,7 +240,7 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Found some prblems while execution.'
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+msg
         self.update_chat()
-        self.python_code=''
+        #self.python_code=''
         self.msgEdit.setText('')
         self.is_debug =False
         self.update_chat()
@@ -245,6 +271,7 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Please Enter Y/y or N/n.'
             self.update_chat()
             return
+        self.command =self.msgEdit.text()
         self.chat_text =self.chat_text+'\n'+self.userName +' : ' +self.msgEdit.text()
         if self.mode:
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Processing Your Order ...'
@@ -309,7 +336,7 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if completion=='':
             QtWidgets.QMessageBox.warning(self, 'Error', 'Cannot Connect to OpenAI')
             return
-        self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +completion
+        self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +completion.strip()
     #code executions
     def run_code(self,completion):
         if completion=='':
@@ -317,6 +344,7 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Compiling Code.'
         code = completion.split('[[[')[1].split(']]]')[0]
+        self.python_code_history.append({'title':self.command,'code':code})
         if self.seeCodeCheckBox.isChecked():
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Code :\n'+code
             self.update_chat()
