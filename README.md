@@ -81,13 +81,17 @@ QGPT Agent is a powerful plugin that can help users automate various processes i
 
 [+] Supporting step by step supervised execution (suggestion by Julius Petri).
 
-[-] Support Complex analysis processes.
+[+] Multiple Prompt Support.
 
-[-] Adding new Tab to edit code and run it.
+[+] Adding new tab to edit code and run it.
+
+[+] Save History and setting.
+
+[-] Support Complex analysis processes.
 
 [-] Adding long-term memory.
 
-[-] More prompt optimization.
+[*] More prompt optimization.
 
 ## Disclaimer
 
