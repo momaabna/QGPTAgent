@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>761</width>
-    <height>351</height>
+    <width>721</width>
+    <height>446</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,10 +15,10 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
+    <item row="2" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="chatTab">
        <property name="sizePolicy">
@@ -86,7 +86,7 @@
             <item>
              <widget class="QLabel" name="label">
               <property name="text">
-               <string>API Tocken</string>
+               <string>OpenAI Tocken</string>
               </property>
              </widget>
             </item>
@@ -94,9 +94,35 @@
              <widget class="QgsPasswordLineEdit" name="tockenEdit"/>
             </item>
             <item>
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Chat Generativity</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="tempComboBox">
+              <item>
+               <property name="text">
+                <string>Rigid</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Midium</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Generative</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="setTockenButton">
               <property name="text">
-               <string>Set Tocken</string>
+               <string>Save</string>
               </property>
              </widget>
             </item>
@@ -115,6 +141,39 @@
              <widget class="QLineEdit" name="userEdit"/>
             </item>
             <item>
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Prompt</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="promptComboBox">
+              <item>
+               <property name="text">
+                <string>Classic</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Experimental</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Project Optimized</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="setUserButton">
+              <property name="text">
+               <string>Set User Setting</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="horizontalSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
@@ -128,9 +187,9 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="setUserButton">
+             <widget class="QPushButton" name="clearChatButton">
               <property name="text">
-               <string>Set User</string>
+               <string>Clear Chat</string>
               </property>
              </widget>
             </item>
@@ -195,7 +254,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QLabel" name="label_4">
+           <widget class="QLabel" name="docLabel">
             <property name="text">
              <string>&lt;a href=&quot;https://github.com/momaabna/QGPTAgent/&quot;&gt;Doc &lt;/a&gt;</string>
             </property>
@@ -231,13 +290,13 @@
        <attribute name="title">
         <string>Code Editor</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_4">
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
            <widget class="QListWidget" name="codeList">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -251,49 +310,67 @@
            </widget>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_3">
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_5">
-              <item>
-               <widget class="QPushButton" name="runButton">
-                <property name="text">
-                 <string>Run</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="getCodeButton">
-                <property name="text">
-                 <string>Get Agent Code</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="updateButton">
-                <property name="text">
-                 <string>Update Agent Code</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
+             <widget class="QPushButton" name="deleteButton">
+              <property name="text">
+               <string>Delete</string>
+              </property>
+             </widget>
             </item>
             <item>
-             <widget class="QTextEdit" name="codeEdit"/>
+             <widget class="QPushButton" name="clearButton">
+              <property name="text">
+               <string>Clear History</string>
+              </property>
+             </widget>
             </item>
            </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QPushButton" name="runButton">
+              <property name="text">
+               <string>Run</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="getCodeButton">
+              <property name="text">
+               <string>Get Agent Code</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="updateButton">
+              <property name="text">
+               <string>Update Agent Code</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QTextEdit" name="codeEdit"/>
           </item>
          </layout>
         </item>

@@ -9,7 +9,7 @@
         begin                : 2023-04-27
         git sha              : $Format:%H$
         copyright            : (C) 2023 by Mohammed Nasser
-        email                : momaabna2019@uofk.edu
+        email                : momaabna2019@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -28,7 +28,7 @@ import sys
 from qgis.PyQt import QtGui, QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal
 import requests
-import subprocess
+import processing
 import io
 import contextlib
 import platform
@@ -37,82 +37,13 @@ import qgis.utils
 import tempfile
 from qgis.utils import *
 from PyQt5.QtCore import QThread, pyqtSignal
-
+import sqlite3
 version =qgis.utils.Qgis.QGIS_VERSION 
 from qgis.PyQt.QtCore import QThreadPool
 from qgis.PyQt.QtWidgets import QLabel
 from .prompts import *
-
-def containerize_code(code_string):
-    code_string ="""from qgis.core import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-""" +code_string +"""# refresh the canvas
-iface.mapCanvas().refresh()"""
-    # From Engshell
-    try:
-        output_buffer = io.StringIO()
-        with contextlib.redirect_stdout(output_buffer):
-            exec(code_string, globals())
-    except Exception as e:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        tb = traceback.extract_tb(exc_traceback)
-        filename, line, func, text = tb[-1]
-        error_msg = f"{exc_type.__name__}: {str(e)}"
-        return False, f'Error: {error_msg}. Getting the error from function: {func} (line: {line})'
-    code_printout = output_buffer.getvalue()
-    return True, code_printout
-def get_completion(prompt,api_key,temprature=0.0):
-
-    # Replace MODEL_ID with the ID of the OpenAI model you want to use
-    model_id = 'text-davinci-003'
-    max_tockens = 1000
-
-    # Define the parameters for the API request
-    data = {
-        'model': model_id,
-        'prompt': prompt,
-        "max_tokens": max_tockens,
-        "temperature": temprature,
-        }
-
-    # Define the headers for the API request
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {api_key}',
-    }
-    try:
-        # Send the API request and get the response
-        response = requests.post('https://api.openai.com/v1/completions', json=data, headers=headers)
-        #print(response)
-        if response.status_code==200:
-            
-            # Parse the response to get the text completion
-            completion = response.json()['choices'][0]['text']
-        else:
-            completion =''
-    except:
-        completion=''
-    return completion
-
-
-class RequestWorker(QThread):
-    # Define a custom signal to emit when the request is finished
-    finished_signal = pyqtSignal(str)
-    
-    def __init__(self, prompt,api_key,temprature=0.0):
-        super().__init__()
-        self.prompt=prompt
-        self.api_key =api_key
-        self.temprature=temprature
-    
-    def run(self):
-        completion =get_completion(self.prompt, self.api_key,self.temprature)
-        self.finished_signal.emit(completion)
-
-
-
+from .functional import *
+import datetime
 
 
 
@@ -134,28 +65,70 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # http://doc.qt.io/qt-5/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        #check if the user is using the right version of QGIS
+        if version[0] !='3':
+            self.chat_text ='QGPT Agent  is only compatible with QGIS 3.0 and above'
+            self.chatEdit.setText(self.chat_text)
+            self.chatEdit.setStyleSheet("background-color: red; color: white")
+            self.chatEdit.setReadOnly(True)
+            return
+        #check if there is no database
+        if not os.path.exists(os.path.join(os.path.dirname(__file__), 'qgpt_agent.db')):
+            #create database
+            self.create_database()
+            db =Database(os.path.join(os.path.dirname(__file__), 'qgpt_agent.db'))
+            
+            #connect to database
+            db.connect()
+            #create all tables
+            db.createAllTables()
+            #close connection
+            db.close()
+        #connect to database
+        self.db =Database(os.path.join(os.path.dirname(__file__), 'qgpt_agent.db'))
+        self.db.connect()
+
+
+
+
+
         self.python_code =''
         self.command =''
-        self.python_code_history =[]
+        #print(self.db.getHistory())
+        self.python_code_history =[{'id':i[0],'title':i[1],'code':i[2],'datetime':i[3]} for i in self.db.getHistory()]
         self.is_waiting =False
         self.is_debug =False
         self.agentName ='QGPT Agent'
         self.chat_text ='QGPT Agent  at Your Service  '
         self.mode =self.agentRadio.isChecked()
         try:
-            self.apiTocken = os.environ['QGPT_AGENT_OPEN_AI_TOCKEN']
+            self.apiTocken = self.db.getSettingsValue(key='openai_tocken')
             self.tockenEdit.setText(self.apiTocken)
         except:
-            os.environ['QGPT_AGENT_OPEN_AI_TOCKEN']=''
-            self.apiTocken = os.environ['QGPT_AGENT_OPEN_AI_TOCKEN']
+            self.apiTocken = ''
+            self.tockenEdit.setText(self.apiTocken)
         try:
 
-            self.userName =os.environ['QGPT_AGENT_USER']
-            self.self.userEdit.setText(self.userName)
-        except:
-            os.environ['QGPT_AGENT_USER']=os.getlogin()
-            self.userName =os.environ['QGPT_AGENT_USER']
+            self.userName = self.db.getSettingsValue(key='user_name')
             self.userEdit.setText(self.userName)
+        except:
+            self.userName =os.getlogin()
+            self.db.setSettingsValue(key='user_name',value=self.userName)
+            self.userEdit.setText(self.userName)
+        try:
+            self.chatTemperature = self.db.getSettingsValue(key='chat_temperature')
+            self.tempComboBox.setCurrentIndex(int(self.chatTemperature))
+        except:
+            self.chatTemperature = 0.5
+            self.db.setSettingsValue(key='chat_temperature',value=self.chatTemperature)
+            self.tempComboBox.setCurrentIndex(int(self.chatTemperature))
+        try:
+            self.runPrompt = self.db.getSettingsValue(key='run_prompt')
+            self.promptComboBox.setCurrentIndex(int(self.runPrompt))
+        except:
+            self.runPrompt = 0
+            self.db.setSettingsValue(key='run_prompt',value=self.runPrompt)
+            self.promptComboBox.setCurrentIndex(int(self.runPrompt))
 
 
         self.setTockenButton.clicked.connect(self.set_tocken)
@@ -168,8 +141,16 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.updateButton.clicked.connect(self.update_code)
         self.codeList.itemDoubleClicked.connect(self.select_code)
         self.runButton.clicked.connect(self.run_code_button)
+        self.clearButton.clicked.connect(self.delete_all_history)
+        self.deleteButton.clicked.connect(self.delete_history)
+        self.clearChatButton.clicked.connect(self.clear_chat)
+        self.docLabel.setOpenExternalLinks(True)
     
         self.update_chat()
+    def create_database(self):
+        with open(os.path.join(os.path.dirname(__file__), 'qgpt_agent.db'),'w') as f:
+            f.close()
+            
 
     def select_code(self,item):
         index = self.codeList.indexFromItem(item).row()
@@ -177,8 +158,9 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def run_code_button(self):
         try:
-            exec(self.codeEdit.toPlainText())
             print('Running code ..')
+            exec(self.codeEdit.toPlainText())
+            
         except:
             print('Error happened while execution. ')
     def update_code(self):
@@ -203,25 +185,51 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             print('installed Successfully.')
         except subprocess.CalledProcessError:
             print("Installation failed.")
-    
+    def update_history(self):
+        self.python_code_history =[{'id':i[0],'title':i[1],'code':i[2],'datetime':i[3]} for i in self.db.getHistory()]
+        self.update_chat()
+    def clear_chat(self):
+        self.chat_text ='QGPT Agent  at Your Service  '
+        self.update_chat()
+    def delete_all_history(self):
+        #confirm delete
+        reply = QtWidgets.QMessageBox.question(self, 'Message',
+            "Are you sure to delete all history?", QtWidgets.QMessageBox.Yes | 
+            QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
+        if reply == QtWidgets.QMessageBox.Yes:
+            self.db.deleteAllHistory()
+            self.update_history()
+            QtWidgets.QMessageBox.information(self, 'Success', 'History Deleted Successfully')
+    def delete_history(self):
+        index = self.codeList.currentRow() 
+        #confirm delete
+        reply = QtWidgets.QMessageBox.question(self, 'Message',
+            "Are you sure to delete this history?", QtWidgets.QMessageBox.Yes | 
+            QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
+        if reply == QtWidgets.QMessageBox.Yes:
+            self.db.deleteHistory(id=self.python_code_history[index]['id'])
+            self.update_history()
+            QtWidgets.QMessageBox.information(self, 'Success', 'History Deleted Successfully')
     def update_chat(self):
         self.chatEdit.setText(self.chat_text)
         self.chatEdit.verticalScrollBar().setValue(self.chatEdit.verticalScrollBar().maximum())
         self.codeList.clear()
         self.codeList.addItems([i['title'] for i in self.python_code_history])
-    def run_python_code(self):
-        
-        self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Running Code.'
-        st,msg=containerize_code(self.python_code)
-        #print('run python',st,msg)
-        if st:
+    
+    def run_python_code_result(self,result):#result is success+|||+print_output
+        success= result.split('|||')[0]
+        print_output =result.split('|||')[1]
+        self.db.addHistory(command=self.command,code=self.python_code,datetime=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),success=success,printout=print_output)
+        self.update_history()
+        if success=='True':
+            #print(success)
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Done.'
-            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+msg
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+print_output
         else:
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Found some prblems while execution.'
-            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+msg
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+print_output
             # Correcting code to start and run it again
-            prompt = make_debug_prompt(self.python_code,msg)
+            prompt = make_debug_prompt(self.python_code, print_output)
                 #print(prompt)
             #completion = get_completion(prompt, self.apiTocken)
             self.worker = RequestWorker(prompt, self.apiTocken)
@@ -230,29 +238,61 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # Add the worker to a QThreadPool and start it
             
             self.worker.run()
+            self.update_chat()
         #self.python_code=''
         self.msgEdit.setText('')
         self.is_waiting =False
         self.update_chat()
-    def debug_python_code(self):
-        self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Compiling New Code.'
-        if self.seeCodeCheckBox.isChecked():
-            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Edited Code :\n'+code
-            self.update_chat()
+
+
+
+    def run_python_code(self):
+        
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Running Code.'
-        st,msg=containerize_code(self.python_code)
-        if st:
+        #st,msg=containerize_code(self.python_code)
+        #print('run python',st,msg)
+        self.worker = CodeRunner(code_string=self.python_code)
+        self.worker.finished_signal.connect(self.run_python_code_result)
+        self.worker.run()
+        self.is_waiting =False
+        self.update_chat()
+        #self.python_code=''
+
+    def debug_python_code_result(self,result):#result is success+|||+print_output
+        success= result.split('|||')[0]
+        print_output =result.split('|||')[1]
+        
+        self.db.addHistory(self.command, self.python_code, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), success, print_output)
+        self.update_history()
+        if success=='True':
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Done.'
-            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+msg
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+print_output
         else:
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Found some prblems while execution.'
-            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+msg
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+print_output
         self.update_chat()
         #self.python_code=''
         self.msgEdit.setText('')
         self.is_debug =False
         self.update_chat()
 
+
+    def debug_python_code(self):
+        self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Compiling New Code.'
+        if self.seeCodeCheckBox.isChecked():
+            self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Edited Code :\n'+code
+            self.update_chat()
+        self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Running Code.'
+
+        #st,msg=containerize_code(self.python_code)
+        #print('run python',st,msg)
+        self.worker = CodeRunner(code_string=self.python_code)
+        self.worker.finished_signal.connect(self.debug_python_code_result)
+        self.worker.run()
+        self.is_debug =False
+        self.update_chat()
+        #self.python_code=''
+        
     def send(self):
         #check if there is text 
         # 
@@ -261,10 +301,16 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return
         
         if (self.msgEdit.text() =='y' or self.msgEdit.text() =='Y') and self.is_waiting :
+            self.chat_text =self.chat_text+'\n'+self.userName +' : ' +self.msgEdit.text()
+            self.msgEdit.setText('')
+            self.update_chat()
             self.run_python_code()
             #print('run code')
             return
         if (self.msgEdit.text() =='y' or self.msgEdit.text() =='Y') and self.is_debug :
+            self.chat_text =self.chat_text+'\n'+self.userName +' : ' +self.msgEdit.text()
+            self.msgEdit.setText('')
+            self.update_chat()
             self.debug_python_code()
             return
         if (self.msgEdit.text() =='n' or self.msgEdit.text() =='N'):
@@ -281,10 +327,12 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return
         self.command =self.msgEdit.text()
         self.chat_text =self.chat_text+'\n'+self.userName +' : ' +self.msgEdit.text()
+        self.msgEdit.setText('')
+        self.update_chat()
         if self.mode:
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Processing Your Order ...'
             self.update_chat()
-            prompt = make_prompt(self.msgEdit.text())
+            prompt = make_prompt(self.command,self.runPrompt)
             #print(prompt)
             #completion = get_completion()
             self.worker = RequestWorker(prompt, self.apiTocken)
@@ -330,7 +378,7 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.chat_text =self.chat_text+'\n'+self.agentName +' : '+self.msgEdit.text()
             prompt = make_chat_prompt(self.msgEdit.text())
             #completion = get_completion(prompt, self.apiTocken)
-            worker = RequestWorker(prompt, self.apiTocken,temprature=0.7)
+            worker = RequestWorker(prompt, self.apiTocken,temprature=self.chatTemperature)
             worker.finished_signal.connect(self.run_chat)
 
             # Add the worker to a QThreadPool and start it
@@ -347,12 +395,16 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +completion.strip()
     #code executions
     def run_code(self,completion):
-        if completion=='':
+        if completion=='connection_error':
             QtWidgets.QMessageBox.warning(self, 'Error', 'Cannot Connect to OpenAI')
+            return
+        if completion=='code_error':
+            QtWidgets.QMessageBox.warning(self, 'Error', 'Cannot retrieve dat from OpenAI plaease check your API key and Balance')
             return
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Compiling Code.'
         code = completion.split('[[[')[1].split(']]]')[0]
-        self.python_code_history.append({'title':self.command,'code':code})
+        
+        self.python_code_history.append({'title':self.command,'code':code,'datetime':datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
         if self.seeCodeCheckBox.isChecked():
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Code :\n'+code
             self.update_chat()
@@ -365,6 +417,8 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Running Code.'
         st,msg=containerize_code(code)
+        self.db.addHistory(command=self.command,code=code,datetime=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),success=str(st),printout=msg)
+        self.update_history()
         if st:
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Done.'
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+msg
@@ -384,8 +438,12 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             
     
     def debug_code(self,completion):
-        if completion=='':
+        #print('com: ',completion)
+        if completion=='connection_error':
             QtWidgets.QMessageBox.warning(self, 'Error', 'Cannot Connect to OpenAI')
+            return
+        if completion=='code_error':
+            QtWidgets.QMessageBox.warning(self, 'Error', 'Cannot retrieve dat from OpenAI plaease check your API key and Balance')
             return
         msg =completion.split('[[[')[1].split(']]]')[0]
         code = completion.split('[[[')[2].split(']]]')[0]
@@ -405,6 +463,8 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.update_chat()
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Running Code.'
         st,msg=containerize_code(code)
+        self.db.addHistory(command=self.command,code=code,datetime=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),success=str(st),printout=msg)
+        self.update_history()
         if st:
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Done.'
             self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Output by system :\n'+msg
@@ -415,14 +475,29 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def check_mode(self):
         self.mode =self.agentRadio.isChecked()
+        self.db.setSettingsValue('mode',str(self.mode) )
         #print((self.mode))
 
     def set_tocken(self):
         os.environ['QGPT_AGENT_OPEN_AI_TOCKEN'] =self.tockenEdit.text()
+        #set tocken to database
+        self.db.setSettingsValue('openai_tocken',self.tockenEdit.text())
+        if self.tempComboBox.currentIndex() == 0:
+            self.chatTemperature =0.0
+        elif self.tempComboBox.currentIndex() == 1:
+            self.chatTemperature =0.4
+        elif self.tempComboBox.currentIndex() == 2:
+            self.chatTemperature =0.7
+        self.db.setSettingsValue('chat_temperature', str(self.chatTemperature))
         self.apiTocken = os.environ['QGPT_AGENT_OPEN_AI_TOCKEN']
         #print(os.environ['QGPT_AGENT_OPEN_AI_TOCKEN'])
     def set_user(self):
         os.environ['QGPT_AGENT_USER'] =self.userEdit.text()
+        #set user name to database
+        self.db.setSettingsValue('user_name',self.userEdit.text())
+        self.db.setSettingsValue('run_prompt', str(self.promptComboBox.currentIndex()))
+        self.runPrompt = self.promptComboBox.currentIndex()
+        
 
         self.userName =os.environ['QGPT_AGENT_USER']
         #print(os.environ['QGPT_AGENT_USER'])
@@ -431,4 +506,6 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
     def closeEvent(self, event):
         self.closingPlugin.emit()
+        #clsoe database
+        self.db.close()
         event.accept()
