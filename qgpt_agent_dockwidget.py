@@ -375,8 +375,8 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.update_chat() """
 
         else:
-            self.chat_text =self.chat_text+'\n'+self.agentName +' : '+self.msgEdit.text()
-            prompt = make_chat_prompt(self.msgEdit.text())
+            #self.chat_text =self.chat_text+'\n'+self.agentName +' : '+self.msgEdit.text()
+            prompt = make_chat_prompt(self.command)
             #completion = get_completion(prompt, self.apiTocken)
             worker = RequestWorker(prompt, self.apiTocken,temprature=self.chatTemperature)
             worker.finished_signal.connect(self.run_chat)
@@ -402,6 +402,7 @@ class QGPTAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             QtWidgets.QMessageBox.warning(self, 'Error', 'Cannot retrieve dat from OpenAI plaease check your API key and Balance')
             return
         self.chat_text =self.chat_text+'\n'+self.agentName +' : ' +'Compiling Code.'
+        #print(completion)
         code = completion.split('[[[')[1].split(']]]')[0]
         
         self.python_code_history.append({'title':self.command,'code':code,'datetime':datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})

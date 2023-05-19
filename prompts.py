@@ -5,11 +5,13 @@ version =qgis.utils.Qgis.QGIS_VERSION
 
 #get completion
 def make_prompt(user_input,prompt_type):
+    prompt_type=int(prompt_type)
     # Get the name of the operating system
     os_name = platform.system()
     # Get the version of the operating system
     os_version = platform.release()
     #Prompt Engineering part
+    #print(prompt_type)
     #------------------------------------------------------------------------------------------------------------------
     prompt = f"""You are QGPT Agent (QGIS Assistant Plugin ) running on QGIS version ({version}) and ({os_name} {os_version}) operation system \
     you will taking Prompt inside <> and generate the python code which can fully run inside QGIS python plugin with all imports needed \
@@ -34,25 +36,22 @@ def make_prompt(user_input,prompt_type):
     command: <{user_input}>
     """
     if prompt_type==0:
+        #print(prompt)
         return prompt
 
     #------------------------------------------------------------------------------------------------------------------
     prompt = f"""Welcome to QGPT Agent, the QGIS Assistant Plugin running on QGIS version {version} and {os_name} {os_version}.
 
     To generate Python code that can run inside the QGIS Python plugin with all necessary imports, please enter your prompt inside <>.
-
-    If you need to download data, please use the python urllib.request library with the following format:
-        req = urllib.request.Request(url, headers=headers)
-        response = urllib.request.urlopen(req)
-        
-        User agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-        
-        You may download files from any valid website, such as Natural Earth, GADM, Humanitarian Data Exchange, and OSM.
-
-    All output will be saved to the temp directory (tempfile.gettempdir()) and can be viewed from there.
-
-    Your prompt should output Python code bounded by [[[ CODE ]]], and it should be formatted to run directly using exec() function inside QGIS code editor.
-
+    In case Prompt need you to downlaod data :
+    if download is needed:
+  - use python urllib.request  liberary req = urllib.request.Request(url, headers=headers) response = urllib.request.urlopen(req)
+    and user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'\
+    - use any fresh and valid websites to download files such as Natural Earth,GADM, Humanitarian Data Exchange, OSM \
+    
+   All processing output should be saved into temp directory  tempfile.gettempdir() and opened to be veiwed\
+    you will only output python code bounded by brackets [[[ CODE ]]] and should be formatted to be run directly using exec() function\
+    at max output should be less than 500 words.\
     The code should:
         -import all needed liberaries
         -be as simple as possible
@@ -60,13 +59,12 @@ def make_prompt(user_input,prompt_type):
         -not contain any comment lines starting with #
         -print the results after every step
         -have a maximum output of 500 words.
+    
 
-
-    Please enter your command inside <> below:
-
-    <{user_input}>
+    command: <{user_input}>
     """
     if prompt_type==1:
+        #print(prompt)
         return prompt
     #------------------------------------------------------------------------------------------------------------------
     #if layer is active
@@ -81,43 +79,39 @@ def make_prompt(user_input,prompt_type):
     else:
         active_layer_info=f""""""
     
-    prompt = f"""Welcome to QGPT Agent, the QGIS Assistant Plugin running on QGIS version {version} and {os_name} {os_version}.
+    prompt = f"""You are QGPT Agent (QGIS Assistant Plugin ) running on QGIS version ({version}) and ({os_name} {os_version}) operation system \
+    you will taking Prompt inside <> and generate the Python code which can fully run inside QGIS python plugin with all imports needed \
+    In case Prompt need you to downlaod data :
+    if download is needed:
+     - use python urllib.request  liberary req = urllib.request.Request(url, headers=headers) response = urllib.request.urlopen(req)
+    and user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'\
+    - use any fresh and valid websites to download files such as Natural Earth,GADM, Humanitarian Data Exchange, OSM \
+    
+        All processing output should be saved into temp directory  tempfile.gettempdir() and opened to be veiwed\
+    you will only output python code bounded by brackets [[[ CODE ]]] and should be formatted to be run directly using exec() function\
+    at max output should be less than 500 words.\
+     The code should be:\
+        -import all needed liberaries.\
+        -be as simple as possible.\
+        -be well-formatted.\
+        -not contain any comment lines starting with #.\
+        -print the results after every step.\
+        -have a maximum output of 500 words.\
+    Here some infromation about QGIS WrokSpace:\
+    -QGIS Current Project CRS: {qgis.utils.iface.mapCanvas().mapSettings().destinationCrs().authid()}. \
+    -QGIS Current Project Extent: {qgis.utils.iface.mapCanvas().extent()}. \
+    -QGIS Current Project Layers: {qgis.utils.iface.mapCanvas().layers()}. \
+    -QGIS Current Project Layer Count: {qgis.utils.iface.mapCanvas().layerCount()} . \
+    -QGIS Current Canvas Extent: {qgis.utils.iface.mapCanvas().extent()} . \
+    {active_layer_info} . \
 
-    To generate Python code that can run inside the QGIS Python plugin with all necessary imports, please enter your prompt inside <>.
-
-    If you need to download data, please use the python urllib.request library with the following format:
-        req = urllib.request.Request(url, headers=headers)
-        response = urllib.request.urlopen(req)
-        
-        User agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-        
-        You may download files from any valid website, such as Natural Earth, GADM, Humanitarian Data Exchange, and OSM.
-
-    All output will be saved to the temp directory (tempfile.gettempdir()) and can be viewed from there.
-
-    Your prompt should output Python code bounded by [[[ CODE ]]], and it should be formatted to run directly using exec() function inside QGIS code editor.
-    Here some infromation about QGIS WrokSpace:
-    -QGIS Current Project CRS: {qgis.utils.iface.mapCanvas().mapSettings().destinationCrs().authid()}
-    -QGIS Current Project Extent: {qgis.utils.iface.mapCanvas().extent()}
-    -QGIS Current Project Layers: {qgis.utils.iface.mapCanvas().layers()}
-    -QGIS Current Project Layer Count: {qgis.utils.iface.mapCanvas().layerCount()}
-    -QGIS Current Canvas Extent: {qgis.utils.iface.mapCanvas().extent()}
-    {active_layer_info}
-   
-    The code should:
-        -import all needed liberaries
-        -be as simple as possible
-        -be well-formatted
-        -not contain any comment lines starting with #
-        -print the results after every step
-        -have a maximum output of 500 words.
         
 
-    Please enter your command inside <> below:
-
-    <{user_input}>
+    command: <{user_input}> \
+    Python Code Output:\
     """
     if prompt_type==2:
+        #print(prompt)
         return prompt
 
 def make_debug_prompt(code, error):
@@ -151,7 +145,7 @@ def make_chat_prompt(user_input):
     #Prompt Engineering part
     # prompt  = f"""You are QGPT Agent (QGIS Assistant Plugin ) running on QGIS version ({version}) and ({os_name} {os_version}) operation system \
     #     you will take user questions inside <> and answer it in rich informative way in less than 200 word \
-    #     You will act as Geographical Information System Expert, Your answers are going to be precise and scientic 
+    #     You will act as Geographical Information System Expert, Your answers are going to be precise and scientific 
 
     #     User Question: <{user_input}>
     #     """
@@ -164,4 +158,5 @@ def make_chat_prompt(user_input):
             User Question: <{user_input}>
             QGPT Agent :
             """
+    #print(prompt)
     return prompt

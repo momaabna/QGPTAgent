@@ -6,7 +6,7 @@
 name=QGPT Agent
 qgisMinimumVersion=3.0
 description=QGPT Agent is LLM Assistant that uses openai GPT model to automate QGIS processes
-version=0.3
+version=0.4
 author=Mohammed Nasser
 email=momaabna2019@gmail.com
 
@@ -23,7 +23,7 @@ hasProcessingProvider=no
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=python,GPT,Assistant
+tags=python,GPT,Assistant,LLM,Automation,Productivity
 
 homepage=https://github.com/momaabna/QGPTAgent
 category=Plugins
